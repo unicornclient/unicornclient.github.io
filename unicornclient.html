@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicorn Client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .desktop {
+            position: relative;
+            background-image: url('https://preview.redd.it/i-made-high-quality-dark-mode-wallpapers-windows-11-just-v0-jn2ear0ah9n91.jpg?width=1080&crop=smart&auto=webp&s=531ac243da61499dee0715eeb0fd29f4bfa9cd8a');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+            z-index: 0;
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .taskbar .start-btn {
+            display: flex;
+            align-items: center;
+            background-color: #1c1c1c;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+        }
+
+        .taskbar .start-btn img {
+            width: 20px;
+            margin-right: 12px;
+        }
+
+        .taskbar .search-bar {
+            width: 350px;
+            height: 35px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            padding: 5px 12px;
+            box-shadow: 0 0 7px rgba(255, 255, 255, 0.4);
+            transition: width 0.4s ease;
+        }
+
+        .taskbar .search-bar:focus {
+            width: 450px;
+            border-color: #0078d4;
+        }
+
+        .desktop .icon {
+            width: 100px;
+            height: 100px;
+            background-color: #1c1c1c;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .desktop .icon img {
+            max-width: 40px;
+            margin-bottom: 8px;
+        }
+
+        .desktop .icon:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        .app-window {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            background-color: rgba(40, 40, 40, 0.9);
+            width: 450px;
+            height: 350px;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 101;
+            transition: transform 0.2s ease;
+            cursor: move;
+        }
+
+        .app-window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3e3e3e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: move;
+        }
+
+        .app-window-header .close-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .weather-app {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .weather-app .weather-info {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .weather-app .weather-info .temp {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .weather-app .weather-info .condition {
+            font-size: 20px;
+        }
+
+        .camera-app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .camera-app video {
+            width: 80%;
+            height: auto;
+            transform: rotateY(180deg); /* Mirror effect */
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Calculator */
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .calculator input {
+            grid-column: span 4;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #333;
+            color: white;
+            text-align: right;
+        }
+
+        .calculator button {
+            padding: 15px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculator button:hover {
+            background-color: #0078d4;
+        }
+
+        .calculator .delete-btn {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop" id="desktop">
+        <div class="icon" id="weather-app" onclick="openApp('weather-app')">
+            <img src="https://img.icons8.com/?size=100&id=Lh39xZ4Q6gFD&format=png&color=000000" alt="Weather Icon">
+            <span>Weather</span>
+        </div>
+        <div class="icon" id="camera-app" onclick="openApp('camera-app')">
+            <img src="https://img.icons8.com/ios/452/camera.png" alt="Camera Icon">
+            <span>Camera</span>
+        </div>
+        <div class="icon" id="calculator-app" onclick="openApp('calculator-app')">
+            <img src="https://img.icons8.com/ios/452/calculator.png" alt="Calculator Icon">
+            <span>Calculator</span>
+        </div>
+    </div>
+    <div class="taskbar">
+        <div class="start-btn">
+            <img src="https://img.icons8.com/ios/452/windows-11.png" alt="Start Menu Icon">
+            <span>Start</span>
+        </div>
+        <input class="search-bar" type="text" placeholder="Search...">
+    </div>
+
+    <!-- Weather App Window -->
+    <div class="app-window" id="weather-app-window">
+        <div class="app-window-header" id="weather-header" onmousedown="startDrag(event, 'weather-app-window')">
+            <span class="title">Weather</span>
+            <button class="close-btn" onclick="closeApp('weather-app')">X</button>
+        </div>
+        <div class="weather-app">
+            <div class="weather-info">
+                <div class="temp" id="temperature">--°C</div>
+                <div class="condition" id="condition">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera App Window -->
+    <div class="app-window" id="camera-app-window">
+        <div class="app-window-header" id="camera-header" onmousedown="startDrag(event, 'camera-app-window')">
+            <span class="title">Camera</span>
+            <button class="close-btn" onclick="closeApp('camera-app')">X</button>
+        </div>
+        <div class="camera-app">
+            <video id="camera-video" autoplay></video>
+        </div>
+    </div>
+
+    <!-- Calculator App Window -->
+    <div class="app-window" id="calculator-app-window">
+        <div class="app-window-header" id="calculator-header" onmousedown="startDrag(event, 'calculator-app-window')">
+            <span class="title">Calculator</span>
+            <button class="close-btn" onclick="closeApp('calculator-app')">X</button>
+        </div>
+        <div class="calculator">
+            <input type="text" id="calc-display" disabled>
+            <button onclick="appendToDisplay(7)">7</button>
+            <button onclick="appendToDisplay(8)">8</button>
+            <button onclick="appendToDisplay(9)">9</button>
+            <button onclick="appendToDisplay('/')">/</button>
+            <button onclick="appendToDisplay(4)">4</button>
+            <button onclick="appendToDisplay(5)">5</button>
+            <button onclick="appendToDisplay(6)">6</button>
+            <button onclick="appendToDisplay('*')">*</button>
+            <button onclick="appendToDisplay(1)">1</button>
+            <button onclick="appendToDisplay(2)">2</button>
+            <button onclick="appendToDisplay(3)">3</button>
+            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay(0)">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="appendToDisplay('+')">+</button>
+            <button class="delete-btn" onclick="clearDisplay()">C</button>
+        </div>
+    </div>
+
+    <script>
+        let cameraStream = null;
+
+        function openApp(app) {
+            const allApps = document.querySelectorAll('.app-window');
+            allApps.forEach(appWindow => appWindow.style.display = 'none');
+            const appWindow = document.getElementById(${app}-window);
+            appWindow.style.display = 'block';
+
+            if (app === 'weather-app') {
+                getWeatherData(); // Fetch weather data
+            } else if (app === 'camera-app') {
+                startCamera(); // Start camera when camera app is opened
+            }
+        }
+
+        function closeApp(app) {
+            const appWindow = document.getElementById(${app}-window);
+            appWindow.style.display = 'none';
+
+            if (app === 'camera-app') {
+                stopCamera(); // Stop camera when camera app is closed
+            }
+        }
+
+        function startCamera() {
+            const videoElement = document.getElementById("camera-video");
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        cameraStream = stream;
+                        videoElement.srcObject = stream;
+                    })
+                    .catch(function (error) {
+                        console.log("Error accessing the camera: ", error);
+                    });
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                const tracks = cameraStream.getTracks();
+                tracks.forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        function getWeatherData() {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const apiKey = 'cd97be01cda643bd82c201535241611';  // Replace with your WeatherAPI key
+                const url = https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=no;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const temperature = document.getElementById('temperature');
+                        const condition = document.getElementById('condition');
+                        temperature.textContent = ${data.current.temp_c}°C;
+                        condition.textContent = data.current.condition.text;
+                    })
+                    .catch(error => console.error('Error fetching weather data:', error));
+            });
+        }
+
+        function appendToDisplay(value) {
+            const display = document.getElementById("calc-display");
+            display.value += value;
+        }
+
+        function calculate() {
+            const display = document.getElementById("calc-display");
+            display.value = eval(display.value); // Simple evaluation of the expression
+        }
+
+        function clearDisplay() {
+            const display = document.getElementById("calc-display");
+            display.value = ''; // Clear the display
+        }
+    </script>
+</body>
+</html>
