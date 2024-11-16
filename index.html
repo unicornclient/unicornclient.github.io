@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicorn Client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Background */
+        .desktop {
+            position: relative;
+            background-image: url('https://preview.redd.it/i-made-high-quality-dark-mode-wallpapers-windows-11-just-v0-jn2ear0ah9n91.jpg?width=1080&crop=smart&auto=webp&s=531ac243da61499dee0715eeb0fd29f4bfa9cd8a');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+            z-index: 0;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        .taskbar .start-btn {
+            display: flex;
+            align-items: center;
+            background-color: #1c1c1c;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+        }
+
+        .taskbar .start-btn img {
+            width: 20px;
+            margin-right: 12px;
+        }
+
+        .taskbar .search-bar {
+            width: 350px;
+            height: 35px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            padding: 5px 12px;
+            box-shadow: 0 0 7px rgba(255, 255, 255, 0.4);
+            transition: width 0.4s ease;
+        }
+
+        .taskbar .search-bar:focus {
+            width: 450px;
+            border-color: #0078d4;
+        }
+
+        /* Desktop Icons */
+        .desktop .icon {
+            width: 100px;
+            height: 100px;
+            background-color: #1c1c1c;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .desktop .icon img {
+            max-width: 40px;
+            margin-bottom: 8px;
+        }
+
+        .desktop .icon:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        /* App Windows */
+        .app-window {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            background-color: rgba(40, 40, 40, 0.9);
+            width: 450px;
+            height: 350px;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 101;
+            transition: transform 0.2s ease;
+            cursor: move;
+        }
+
+        .app-window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3e3e3e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: grab;
+        }
+
+        .app-window-header .close-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .app-window-header .title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Camera App Styling */
+        .camera-app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .camera-app video {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            margin-bottom: 15px;
+        }
+
+        .camera-app .capture-btn {
+            background-color: #0078d4;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .camera-app .capture-btn:hover {
+            background-color: #005fa3;
+        }
+
+        .camera-app .photo-gallery {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            margin-top: 15px;
+            padding: 10px 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .camera-app .photo-gallery img {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        /* Calculator App Styling */
+        .calculator-app {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding: 10px;
+        }
+
+        .calculator-app input {
+            font-size: 2em;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            background-color: #2a2a2a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+        }
+
+        .calculator-app button {
+            font-size: 1.5em;
+            padding: 20px;
+            margin: 5px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .calculator-app button:hover {
+            background-color: #0078d4;
+        }
+
+        /* File Manager App Styling */
+        .file-manager {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .file-manager .file {
+            margin: 10px;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            width: 150px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .file-manager .file:hover {
+            background-color: #0078d4;
+        }
+
+        /* Error Popup */
+        .error-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            border: 1px solid #444;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            width: 300px;
+            text-align: center;
+            border-radius: 8px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .error-popup button {
+            background-color: #d9534f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .error-popup button:hover {
+            background-color: #c9302c;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop" id="desktop">
+        <!-- Camera App Icon -->
+        <div class="icon" id="camera-app" onclick="openApp('camera-app')">
+            <img src="https://img.icons8.com/ios/452/camera.png" alt="Camera Icon">
+            <span>Camera</span>
+        </div>
+
+        <!-- Calculator App Icon -->
+        <div class="icon" id="calculator-app" onclick="openApp('calculator-app')">
+            <img src="https://img.icons8.com/ios/452/calculator.png" alt="Calculator Icon">
+            <span>Calculator</span>
+        </div>
+
+        <!-- File Manager App Icon -->
+        <div class="icon" id="file-manager-app" onclick="openApp('file-manager-app')">
+            <img src="https://img.icons8.com/ios/452/folder-invoices.png" alt="File Manager Icon">
+            <span>File Manager</span>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <!-- Start Button -->
+        <div class="start-btn">
+            <img src="https://img.icons8.com/ios/452/windows-11.png" alt="Start Menu Icon">
+            <span>Start</span>
+        </div>
+
+        <!-- Search Bar -->
+        <input class="search-bar" type="text" placeholder="Search...">
+    </div>
+
+    <!-- Camera App Window -->
+    <div class="app-window" id="camera-app-window">
+        <div class="app-window-header" onmousedown="startDrag(event, 'camera-app-window')">
+            <span class="title">Camera</span>
+            <button class="close-btn" onclick="closeApp('camera-app')">X</button>
+        </div>
+        <div class="camera-app">
+            <video id="video" width="320" height="240" autoplay></video>
+            <button class="capture-btn" onclick="capturePhoto()">Capture</button>
+            <div class="photo-gallery" id="photo-gallery"></div>
+        </div>
+    </div>
+
+    <!-- Calculator App Window -->
+    <div class="app-window" id="calculator-app-window">
+        <div class="app-window-header" onmousedown="startDrag(event, 'calculator-app-window')">
+            <span class="title">Calculator</span>
+            <button class="close-btn" onclick="closeApp('calculator-app')">X</button>
+        </div>
+        <div class="calculator-app">
+            <input id="calc-display" type="text" readonly>
+            <div>
+                <button onclick="appendToCalc('1')">1</button>
+                <button onclick="appendToCalc('2')">2</button>
+                <button onclick="appendToCalc('3')">3</button>
+                <button onclick="appendToCalc('+')">+</button>
+            </div>
+            <div>
+                <button onclick="appendToCalc('4')">4</button>
+                <button onclick="appendToCalc('5')">5</button>
+                <button onclick="appendToCalc('6')">6</button>
+                <button onclick="appendToCalc('-')">-</button>
+            </div>
+            <div>
+                <button onclick="appendToCalc('7')">7</button>
+                <button onclick="appendToCalc('8')">8</button>
+                <button onclick="appendToCalc('9')">9</button>
+                <button onclick="appendToCalc('*')">*</button>
+            </div>
+            <div>
+                <button onclick="appendToCalc('0')">0</button>
+                <button onclick="clearCalc()">C</button>
+                <button onclick="calculate()">=</button>
+                <button onclick="appendToCalc('/')">/</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Manager App Window -->
+    <div class="app-window" id="file-manager-app-window">
+        <div class="app-window-header" onmousedown="startDrag(event, 'file-manager-app-window')">
+            <span class="title">File Manager</span>
+            <button class="close-btn" onclick="closeApp('file-manager-app')">X</button>
+        </div>
+        <div class="file-manager">
+            <div class="file">Documents</div>
+            <div class="file">Downloads</div>
+            <div class="file">Pictures</div>
+        </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div id="error-popup" class="error-popup">
+        <p id="error-message"></p>
+        <button onclick="closeErrorPopup()">Close</button>
+    </div>
+
+    <script>
+        // Open App Function
+        function openApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            if (appWindow) {
+                appWindow.style.display = 'block';
+                console.log(`${appId} window opened.`);
+            } else {
+                logError(`Error: Unable to open ${appId}-window. Window element not found.`);
+            }
+        }
+
+        // Close App Function
+        function closeApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            if (appWindow) {
+                appWindow.style.display = 'none';
+                console.log(`${appId} window closed successfully.`);
+            } else {
+                logError(`Error: Unable to close ${appId}-window. Window element not found.`);
+            }
+        }
+
+        // Error Logging
+        function logError(message) {
+            const errorPopup = document.getElementById('error-popup');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorPopup.style.display = 'block';
+        }
+
+        // Close Error Popup
+        function closeErrorPopup() {
+            const errorPopup = document.getElementById('error-popup');
+            errorPopup.style.display = 'none';
+        }
+
+        // Start Dragging (for app window dragging functionality)
+        let offsetX, offsetY, currentElement;
+
+        function startDrag(e, appId) {
+            currentElement = document.getElementById(appId);
+            offsetX = e.clientX - currentElement.offsetLeft;
+            offsetY = e.clientY - currentElement.offsetTop;
+            document.onmousemove = dragApp;
+            document.onmouseup = stopDrag;
+        }
+
+        function dragApp(e) {
+            currentElement.style.left = e.clientX - offsetX + 'px';
+            currentElement.style.top = e.clientY - offsetY + 'px';
+        }
+
+        function stopDrag() {
+            document.onmousemove = null;
+            document.onmouseup = null;
+        }
+    </script>
+</body>
+</html>
