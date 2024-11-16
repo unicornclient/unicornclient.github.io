@@ -3,457 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unicorn Client</title>
+    <title>Unicorn Client Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-color: #121212;
             color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            height: 100vh;
+            position: absolute;
+            width: 100%;
         }
 
-        /* Background */
-        .desktop {
-            position: relative;
-            background-image: url('https://preview.redd.it/i-made-high-quality-dark-mode-wallpapers-windows-11-just-v0-jn2ear0ah9n91.jpg?width=1080&crop=smart&auto=webp&s=531ac243da61499dee0715eeb0fd29f4bfa9cd8a');
-            background-size: cover;
-            background-position: center;
+        /* Loading Screen */
+        .loading-screen {
+            background-color: #555555; /* Gray background for the loading screen */
+            color: white;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100%;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 20px;
-            z-index: 0;
+            width: 100%;
+            flex-direction: column;
+            z-index: 10;
+            transition: opacity 1s ease-in-out;
         }
 
-        /* Taskbar */
-        .taskbar {
+        .loading-screen h1 {
+            font-size: 30px;
+            margin-bottom: 30px;
+        }
+
+        .loading-screen .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        /* Login Container */
+        .login-container {
+            background-color: rgba(20, 20, 20, 0.9);
+            padding: 40px 50px;
+            border-radius: 10px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 20;
+            position: absolute;
+        }
+
+        .login-container .logo {
+            font-size: 40px;
+            color: #0078d4;
+            margin-bottom: 20px;
+        }
+
+        .login-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: normal;
+            color: #f1f1f1;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            border-color: #0078d4;
+            outline: none;
+        }
+
+        .login-btn {
+            background-color: #0078d4;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #005bb5;
+        }
+
+        .forgot-password {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        .forgot-password a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .input-group input[readonly] {
+            background-color: #121212;
+            cursor: not-allowed;
+        }
+
+        .login-container .bottom-text {
+            font-size: 12px;
+            margin-top: 20px;
+            color: #bbb;
+        }
+
+        .login-container .bottom-text a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        .login-container .bottom-text a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #f1f1f1;
+            margin-top: 10px;
+        }
+
+        /* Terms of Service Modal */
+        .tos-modal {
+            display: none;
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-        }
-
-        .taskbar .start-btn {
-            display: flex;
-            align-items: center;
-            background-color: #1c1c1c;
-            padding: 10px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: white;
-            font-size: 18px;
-        }
-
-        .taskbar .start-btn img {
-            width: 20px;
-            margin-right: 12px;
-        }
-
-        .taskbar .search-bar {
-            width: 350px;
-            height: 35px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 14px;
-            padding: 5px 12px;
-            box-shadow: 0 0 7px rgba(255, 255, 255, 0.4);
-            transition: width 0.4s ease;
-        }
-
-        .taskbar .search-bar:focus {
-            width: 450px;
-            border-color: #0078d4;
-        }
-
-        /* Desktop Icons */
-        .desktop .icon {
-            width: 100px;
-            height: 100px;
-            background-color: #1c1c1c;
-            color: white;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.4);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .desktop .icon img {
-            max-width: 40px;
-            margin-bottom: 8px;
-        }
-
-        .desktop .icon:hover {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-
-        /* App Windows */
-        .app-window {
-            position: absolute;
-            top: 20%;
-            left: 20%;
-            background-color: rgba(40, 40, 40, 0.9);
-            width: 450px;
-            height: 350px;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 101;
-            transition: transform 0.2s ease;
-            cursor: move;
-        }
-
-        .app-window-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #3e3e3e;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: grab;
-        }
-
-        .app-window-header .close-btn {
-            background: red;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-
-        .app-window-header .title {
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        /* Camera App Styling */
-        .camera-app {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
-
-        .camera-app video {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-            margin-bottom: 15px;
-        }
-
-        .camera-app .capture-btn {
-            background-color: #0078d4;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
-        }
-
-        .camera-app .capture-btn:hover {
-            background-color: #005fa3;
-        }
-
-        .camera-app .photo-gallery {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            margin-top: 15px;
-            padding: 10px 0;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .camera-app .photo-gallery img {
-            width: 100px;
-            height: 100px;
-            border-radius: 12px;
-            object-fit: cover;
-            cursor: pointer;
-        }
-
-        /* Calculator App Styling */
-        .calculator-app {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             height: 100%;
-            padding: 10px;
-        }
-
-        .calculator-app input {
-            font-size: 2em;
-            padding: 10px;
-            margin-bottom: 20px;
-            text-align: right;
-            background-color: #2a2a2a;
-            color: white;
-            border: none;
-            border-radius: 6px;
-        }
-
-        .calculator-app button {
-            font-size: 1.5em;
-            padding: 20px;
-            margin: 5px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .calculator-app button:hover {
-            background-color: #0078d4;
-        }
-
-        /* File Manager App Styling */
-        .file-manager {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 30;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .file-manager .file {
-            margin: 10px;
-            padding: 10px;
-            background-color: #2a2a2a;
-            border-radius: 8px;
-            width: 150px;
-            text-align: center;
-            color: white;
-            cursor: pointer;
-        }
-
-        .file-manager .file:hover {
-            background-color: #0078d4;
-        }
-
-        /* Error Popup */
-        .error-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .tos-modal-content {
             background-color: #333;
             color: white;
-            padding: 20px;
-            border: 1px solid #444;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            width: 300px;
-            text-align: center;
-            border-radius: 8px;
-            animation: fadeIn 0.5s ease-in-out;
+            padding: 30px;
+            border-radius: 10px;
+            width: 60%;
+            max-height: 80%;
+            overflow-y: auto;
         }
 
-        .error-popup button {
-            background-color: #d9534f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
+        .tos-modal-content h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .tos-modal-content p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .close-tos {
+            color: #0078d4;
+            font-size: 18px;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 20px;
+            text-align: center;
         }
 
-        .error-popup button:hover {
-            background-color: #c9302c;
+        /* Fade-In Background */
+        .fade-in-background {
+            background: url('https://c4.wallpaperflare.com/wallpaper/455/1007/873/windows-10-dark-wallpaper-hd-wallpaper-preview.jpg') no-repeat center center fixed;
+            background-size: cover;
+            transition: all 1s ease-in-out;
+            opacity: 1;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+        .fade-in-background.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
+
     </style>
 </head>
 <body>
-    <div class="desktop" id="desktop">
-        <!-- Camera App Icon -->
-        <div class="icon" id="camera-app" onclick="openApp('camera-app')">
-            <img src="https://img.icons8.com/ios/452/camera.png" alt="Camera Icon">
-            <span>Camera</span>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="logo">
+            <i class="fab fa-windows"></i>
+        </div>
+        <h1>Unicorn Client</h1>
+        <p>Please wait...</p>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="logo">
+            <i class="fab fa-windows"></i>
+        </div>
+        <h1>Welcome to Unicorn Client</h1>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username" value="User" readonly>
+        </div>
+        <button class="login-btn" onclick="login()">Sign In</button>
+        <div class="forgot-password">
+            <a href="#">Forgot password?</a>
         </div>
 
-        <!-- Calculator App Icon -->
-        <div class="icon" id="calculator-app" onclick="openApp('calculator-app')">
-            <img src="https://img.icons8.com/ios/452/calculator.png" alt="Calculator Icon">
-            <span>Calculator</span>
-        </div>
 
-        <!-- File Manager App Icon -->
-        <div class="icon" id="file-manager-app" onclick="openApp('file-manager-app')">
-            <img src="https://img.icons8.com/ios/452/folder-invoices.png" alt="File Manager Icon">
-            <span>File Manager</span>
+        <div class="bottom-text">
+            <p>By signing in, you agree to the <a href="#" onclick="openTOS()">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
         </div>
     </div>
 
-    <div class="taskbar">
-        <!-- Start Button -->
-        <div class="start-btn">
-            <img src="https://img.icons8.com/ios/452/windows-11.png" alt="Start Menu Icon">
-            <span>Start</span>
-        </div>
+    <!-- Fade-In Background -->
+    <div class="fade-in-background hidden"></div>
 
-        <!-- Search Bar -->
-        <input class="search-bar" type="text" placeholder="Search...">
-    </div>
-
-    <!-- Camera App Window -->
-    <div class="app-window" id="camera-app-window">
-        <div class="app-window-header" onmousedown="startDrag(event, 'camera-app-window')">
-            <span class="title">Camera</span>
-            <button class="close-btn" onclick="closeApp('camera-app')">X</button>
+    <!-- Terms of Service Modal -->
+    <div class="tos-modal" id="tos-modal">
+        <div class="tos-modal-content">
+            <h2>Terms of Service</h2>
+            <p>Welcome to Unicorn Client! By using our services, you agree to the following terms and conditions:</p>
+            <p>1. You must be at least 13 years of age to use this service.</p>
+            <p>2. You agree not to misuse the service for illegal purposes.</p>
+            <p>3. We reserve the right to terminate accounts that violate our terms.</p>
+            <p>4. We are not responsible for any damages caused by using our service.</p>
+            <p>5. Your data is processed according to our Privacy Policy.</p>
+            <div class="close-tos" onclick="closeTOS()">Close</div>
         </div>
-        <div class="camera-app">
-            <video id="video" width="320" height="240" autoplay></video>
-            <button class="capture-btn" onclick="capturePhoto()">Capture</button>
-            <div class="photo-gallery" id="photo-gallery"></div>
-        </div>
-    </div>
-
-    <!-- Calculator App Window -->
-    <div class="app-window" id="calculator-app-window">
-        <div class="app-window-header" onmousedown="startDrag(event, 'calculator-app-window')">
-            <span class="title">Calculator</span>
-            <button class="close-btn" onclick="closeApp('calculator-app')">X</button>
-        </div>
-        <div class="calculator-app">
-            <input id="calc-display" type="text" readonly>
-            <div>
-                <button onclick="appendToCalc('1')">1</button>
-                <button onclick="appendToCalc('2')">2</button>
-                <button onclick="appendToCalc('3')">3</button>
-                <button onclick="appendToCalc('+')">+</button>
-            </div>
-            <div>
-                <button onclick="appendToCalc('4')">4</button>
-                <button onclick="appendToCalc('5')">5</button>
-                <button onclick="appendToCalc('6')">6</button>
-                <button onclick="appendToCalc('-')">-</button>
-            </div>
-            <div>
-                <button onclick="appendToCalc('7')">7</button>
-                <button onclick="appendToCalc('8')">8</button>
-                <button onclick="appendToCalc('9')">9</button>
-                <button onclick="appendToCalc('*')">*</button>
-            </div>
-            <div>
-                <button onclick="appendToCalc('0')">0</button>
-                <button onclick="clearCalc()">C</button>
-                <button onclick="calculate()">=</button>
-                <button onclick="appendToCalc('/')">/</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- File Manager App Window -->
-    <div class="app-window" id="file-manager-app-window">
-        <div class="app-window-header" onmousedown="startDrag(event, 'file-manager-app-window')">
-            <span class="title">File Manager</span>
-            <button class="close-btn" onclick="closeApp('file-manager-app')">X</button>
-        </div>
-        <div class="file-manager">
-            <div class="file">Documents</div>
-            <div class="file">Downloads</div>
-            <div class="file">Pictures</div>
-        </div>
-    </div>
-
-    <!-- Error Popup -->
-    <div id="error-popup" class="error-popup">
-        <p id="error-message"></p>
-        <button onclick="closeErrorPopup()">Close</button>
     </div>
 
     <script>
-        // Open App Function
-        function openApp(appId) {
-            const appWindow = document.getElementById(`${appId}-window`);
-            if (appWindow) {
-                appWindow.style.display = 'block';
-                console.log(`${appId} window opened.`);
-            } else {
-                logError(`Error: Unable to open ${appId}-window. Window element not found.`);
-            }
+        // Function to simulate the loading screen transition
+        function startTransition() {
+            // Fade out loading screen
+            document.querySelector('.loading-screen').style.opacity = 0;
+            document.querySelector('.loading-screen').style.pointerEvents = 'none';
+
+            // Show the login screen
+            const loginContainer = document.querySelector('.login-container');
+            loginContainer.style.display = 'block';
+            setTimeout(() => {
+                loginContainer.style.opacity = 1;
+            }, 100);
+
+            // Show the background fade effect
+            const background = document.querySelector('.fade-in-background');
+            background.classList.remove('hidden');
         }
 
-        // Close App Function
-        function closeApp(appId) {
-            const appWindow = document.getElementById(`${appId}-window`);
-            if (appWindow) {
-                appWindow.style.display = 'none';
-                console.log(`${appId} window closed successfully.`);
-            } else {
-                logError(`Error: Unable to close ${appId}-window. Window element not found.`);
-            }
+        // Wait for a random time between 2 and 5 seconds before transitioning
+        const randomWaitTime = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000; // Random time between 2000ms and 5000ms
+        setTimeout(startTransition, randomWaitTime);
+
+        // Login function (for demonstration purposes)
+        function login() {
+            const username = document.getElementById("username").value;
+            // Redirect to unicornclient.html
+            window.location.href = 'unicornclient.html';
         }
 
-        // Error Logging
-        function logError(message) {
-            const errorPopup = document.getElementById('error-popup');
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.textContent = message;
-            errorPopup.style.display = 'block';
+        // Open Terms of Service Modal
+        function openTOS() {
+            document.getElementById('tos-modal').style.display = 'flex';
         }
 
-        // Close Error Popup
-        function closeErrorPopup() {
-            const errorPopup = document.getElementById('error-popup');
-            errorPopup.style.display = 'none';
-        }
-
-        // Start Dragging (for app window dragging functionality)
-        let offsetX, offsetY, currentElement;
-
-        function startDrag(e, appId) {
-            currentElement = document.getElementById(appId);
-            offsetX = e.clientX - currentElement.offsetLeft;
-            offsetY = e.clientY - currentElement.offsetTop;
-            document.onmousemove = dragApp;
-            document.onmouseup = stopDrag;
-        }
-
-        function dragApp(e) {
-            currentElement.style.left = e.clientX - offsetX + 'px';
-            currentElement.style.top = e.clientY - offsetY + 'px';
-        }
-
-        function stopDrag() {
-            document.onmousemove = null;
-            document.onmouseup = null;
+        // Close Terms of Service Modal
+        function closeTOS() {
+            document.getElementById('tos-modal').style.display = 'none';
         }
     </script>
 </body>
