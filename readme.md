@@ -13,11 +13,3 @@ Unicorn Client is a modern, dark-themed desktop simulation featuring a weather a
 ## Demo
 
 Check out a live demo or preview of the project by visiting the [demo link](https://unicornclient.github.io).
-
-## Installation
-
-To use this project locally:
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/unicorn-client.git
