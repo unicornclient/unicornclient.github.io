@@ -272,108 +272,113 @@
             <button class="close-btn" onclick="closeApp('calculator-app')">X</button>
         </div>
         <div class="calculator">
-            <input type="text" id="calc-display" disabled>
-            <button onclick="appendToDisplay(7)">7</button>
-            <button onclick="appendToDisplay(8)">8</button>
-            <button onclick="appendToDisplay(9)">9</button>
-            <button onclick="appendToDisplay('/')">/</button>
-            <button onclick="appendToDisplay(4)">4</button>
-            <button onclick="appendToDisplay(5)">5</button>
-            <button onclick="appendToDisplay(6)">6</button>
-            <button onclick="appendToDisplay('*')">*</button>
-            <button onclick="appendToDisplay(1)">1</button>
-            <button onclick="appendToDisplay(2)">2</button>
-            <button onclick="appendToDisplay(3)">3</button>
-            <button onclick="appendToDisplay('-')">-</button>
-            <button onclick="appendToDisplay(0)">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-            <button onclick="calculate()">=</button>
+            <input type="text" id="calculator-display" readonly>
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
             <button onclick="appendToDisplay('+')">+</button>
-            <button class="delete-btn" onclick="clearDisplay()">C</button>
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button onclick="appendToDisplay('*')">*</button>
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="calculateResult()">=</button>
+            <button onclick="appendToDisplay('/')">/</button>
         </div>
     </div>
 
     <script>
-        let cameraStream = null;
-
         function openApp(app) {
             const allApps = document.querySelectorAll('.app-window');
             allApps.forEach(appWindow => appWindow.style.display = 'none');
-            const appWindow = document.getElementById(${app}-window);
+            const appWindow = document.getElementById(`${app}-window`);
             appWindow.style.display = 'block';
 
             if (app === 'weather-app') {
-                getWeatherData(); // Fetch weather data
+                getWeatherData();
             } else if (app === 'camera-app') {
-                startCamera(); // Start camera when camera app is opened
+                startCamera();
             }
         }
 
         function closeApp(app) {
-            const appWindow = document.getElementById(${app}-window);
+            const appWindow = document.getElementById(`${app}-window`);
             appWindow.style.display = 'none';
 
             if (app === 'camera-app') {
-                stopCamera(); // Stop camera when camera app is closed
-            }
-        }
-
-        function startCamera() {
-            const videoElement = document.getElementById("camera-video");
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function (stream) {
-                        cameraStream = stream;
-                        videoElement.srcObject = stream;
-                    })
-                    .catch(function (error) {
-                        console.log("Error accessing the camera: ", error);
-                    });
-            }
-        }
-
-        function stopCamera() {
-            if (cameraStream) {
-                const tracks = cameraStream.getTracks();
-                tracks.forEach(track => track.stop());
-                cameraStream = null;
+                stopCamera();
             }
         }
 
         function getWeatherData() {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
+            // Example of weather data (you can replace with actual API call)
+            document.getElementById('temperature').innerText = '23°C';
+            document.getElementById('condition').innerText = 'Clear Sky';
+        }
 
-                const apiKey = 'cd97be01cda643bd82c201535241611';  // Replace with your WeatherAPI key
-                const url = https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=no;
+        function startCamera() {
+            const video = document.getElementById('camera-video');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => console.log('Error accessing camera: ' + err));
+        }
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const temperature = document.getElementById('temperature');
-                        const condition = document.getElementById('condition');
-                        temperature.textContent = ${data.current.temp_c}°C;
-                        condition.textContent = data.current.condition.text;
-                    })
-                    .catch(error => console.error('Error fetching weather data:', error));
-            });
+        function stopCamera() {
+            const video = document.getElementById('camera-video');
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
         }
 
         function appendToDisplay(value) {
-            const display = document.getElementById("calc-display");
+            const display = document.getElementById('calculator-display');
             display.value += value;
         }
 
-        function calculate() {
-            const display = document.getElementById("calc-display");
-            display.value = eval(display.value); // Simple evaluation of the expression
+        function clearDisplay() {
+            const display = document.getElementById('calculator-display');
+            display.value = '';
         }
 
-        function clearDisplay() {
-            const display = document.getElementById("calc-display");
-            display.value = ''; // Clear the display
+        function calculateResult() {
+            const display = document.getElementById('calculator-display');
+            try {
+                display.value = eval(display.value);
+            } catch (e) {
+                display.value = 'Error';
+            }
+        }
+
+        let offsetX, offsetY;
+        function startDrag(e, appWindowId) {
+            const appWindow = document.getElementById(appWindowId);
+            offsetX = e.clientX - appWindow.getBoundingClientRect().left;
+            offsetY = e.clientY - appWindow.getBoundingClientRect().top;
+            document.addEventListener('mousemove', dragAppWindow);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function dragAppWindow(e) {
+            const appWindow = document.querySelector('.app-window:not([style*="display: none"])');
+            appWindow.style.left = `${e.clientX - offsetX}px`;
+            appWindow.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', dragAppWindow);
+            document.removeEventListener('mouseup', stopDrag);
         }
     </script>
 </body>
 </html>
+
